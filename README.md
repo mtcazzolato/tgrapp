@@ -46,7 +46,7 @@ The work was proposed in [this]([https://www.cs.cmu.edu/~christos/PUBLICATIONS/k
   
 **Anomaly detection with gen<sup>2</sup>Out**  
   
-The code for Gen<sup>2</sup> is originally from [this Github repository]([https://github.com/mengchillee/gen2Out](https://github.com/mengchillee/gen2Out)).  
+The code for Gen<sup>2</sup>Out is originally from [this Github repository]([https://github.com/mengchillee/gen2Out](https://github.com/mengchillee/gen2Out)).  
 The work was proposed in [this]([https://arxiv.org/pdf/2109.02704.pdf](https://arxiv.org/pdf/2109.02704.pdf)) paper:  
   
 > Lee, MC., Shekhar, S., Faloutsos, C., Hutson, TN., and Iasemidis, L., **gen2Out: Detecting and Ranking Generalized Anomalies**. _IEEE International Conference on Big Data (Big Data)_, 2021.  
