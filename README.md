@@ -37,8 +37,8 @@ We provide a toy sample dataset in folder *data/*. Check file *sample_raw_data.c
 ## Acknowledgement  
   
 **Matrix cross-associations**  
-The code for generating matrix cross-associations is originally from [this Github repository]([https://github.com/clifflyon/fully-automatic-cross-associations](https://github.com/clifflyon/fully-automatic-cross-associations)).  
-The work was proposed in [this]([https://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd04-cross-assoc.pdf](https://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd04-cross-assoc.pdf)) paper:  
+The code for generating matrix cross-associations is originally from [this Github repository](https://github.com/clifflyon/fully-automatic-cross-associations).  
+The work was proposed in [this](https://www.cs.cmu.edu/~christos/PUBLICATIONS/kdd04-cross-assoc.pdf) paper:  
   
 > Deepayan Chakrabarti, S. Papadimitriou, D. Modha, C. Faloutsos.  
 > **Fully automatic cross-associations**. Proceedings of the tenth ACM SIGKDD international conference on Knowledge discovery and data  
@@ -46,13 +46,8 @@ The work was proposed in [this]([https://www.cs.cmu.edu/~christos/PUBLICATIONS/k
   
 **Anomaly detection with gen<sup>2</sup>Out**  
   
-The code for Gen<sup>2</sup>Out is originally from [this Github repository]([https://github.com/mengchillee/gen2Out](https://github.com/mengchillee/gen2Out)).  
-The work was proposed in [this]([https://arxiv.org/pdf/2109.02704.pdf](https://arxiv.org/pdf/2109.02704.pdf)) paper:  
+The code for Gen<sup>2</sup>Out is originally from [this Github repository](https://github.com/mengchillee/gen2Out).  
+The work was proposed in [this](https://arxiv.org/pdf/2109.02704.pdf) paper:  
   
 > Lee, MC., Shekhar, S., Faloutsos, C., Hutson, TN., and Iasemidis, L., **gen2Out: Detecting and Ranking Generalized Anomalies**. _IEEE International Conference on Big Data (Big Data)_, 2021.  
   
-----------------------  
-  
-# TgrApp: Video tutorial  
-  
-Step-by-step tutorial on how to use TgrApp to generate features, visualize the results, and dive deep into suspicious nodes/phone numbers.
