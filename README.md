@@ -51,3 +51,6 @@ The work was proposed in [this](https://arxiv.org/pdf/2109.02704.pdf) paper:
   
 > Lee, MC., Shekhar, S., Faloutsos, C., Hutson, TN., and Iasemidis, L., **gen2Out: Detecting and Ranking Generalized Anomalies**. _IEEE International Conference on Big Data (Big Data)_, 2021.  
   
+**Short demo video**
+
+https://user-images.githubusercontent.com/8514761/192572486-d8449a34-e9ea-4cf0-92e9-1a14dd5a4766.mp4
