@@ -41,7 +41,6 @@ fig_cum_sum_in_call_count=None
 fig_cum_sum_out_call_count=None
 df_temporal_features=None
 
-# TODO: add config file with preset columns/cases
 preset_features = ("in_degree, out_degree, core",
                    "weighted_in_degree, weighted_out_degree, core",
                    "out_degree, in_degree, core, in_median_iat, out_median_measure",
@@ -72,15 +71,23 @@ def read_files(file_features, file_graph):
     # File with input features
     df = pd.read_csv(file_features)
 
+    # File with raw data (source, destination, measure, timestamp) to generate the graph
+    df_graph = pd.read_csv(file_graph)
+
     # Select nodes with more than 5 calls
     # df = df[(df['in_call_count'] + df['out_call_count']) >= 5].reset_index(drop=True)
     
-    # File with raw data (source, destination, measure, timestamp) to generate the graph
-    df_graph = pd.read_csv(file_graph)
+    filter_negative_list()
+    df.fillna(0, inplace=True)
 
     flag_graph_constructed=False
 
 def adjust_input_data():
+    """
+    Adjust input data: remove calls with zero duration and
+    calls with the same number as source and destination
+    """
+
     global df_graph, SOURCE, DESTINATION, MEASURE, TIMESTAMP, UNIQUE_DATES
 
     df_graph[TIMESTAMP] = df_graph[TIMESTAMP].astype('datetime64[s]')
@@ -175,6 +182,10 @@ def construct_graph():
 
 
 def filter_negative_list():
+    """
+    Remove nodes included in the negative list
+    """
+
     global df, df_graph
 
     if os.path.isfile(file_negative_list):
@@ -185,8 +196,6 @@ def filter_negative_list():
 
         df_graph = df_graph[~df_graph[SOURCE].isin(list(df_negative_list[NODE_ID].values))]
         df_graph = df_graph[~df_graph[DESTINATION].isin(df_negative_list[NODE_ID].values)].reset_index(drop=True)
-
-    df.fillna(0, inplace=True)
 
 
 def plot_scatter_matrix(columns):
@@ -246,34 +255,34 @@ def plot_scatter_matrix(columns):
     return fig
 
 
-def get_egonet(G, suspecious_nodes, radius=1, column=''):
+def get_egonet(G, suspicious_nodes, radius=1, column=''):
     """
-    Compose a graph with the egonets of a given set of suspecious nodes.
+    Compose a graph with the egonets of a given set of suspicious nodes.
     Return the subgraph of the composed egonets and the index of
-    suspecious nodes inside the subgraph
+    suspicious nodes inside the subgraph
 
     Parameters
     ----------
     G: nx.Graph
         graph with all nodes to extract the EgoNets from
-    suspecious_nodes: list
-        list of suspecious nodes
+    suspicious_nodes: list
+        list of suspicious nodes
     radius: int
         step of the EgoNet
     """
         
     final_G = nx.empty_graph(create_using=nx.DiGraph())
 
-    for ego_node in suspecious_nodes:
+    for ego_node in suspicious_nodes:
         # create ego network
         hub_ego = nx.ego_graph(G, ego_node, radius=radius, distance='weight', undirected=True)
         final_G = nx.compose(final_G, hub_ego)
 
-    idx_suspecious_nodes = []
-    for node in suspecious_nodes: # TODO: improve this line (not pretty!)
-        idx_suspecious_nodes.append(list(np.where(pd.DataFrame(data=final_G.nodes()) == node)[0])[0])
+    idx_suspicious_nodes = []
+    for node in suspicious_nodes:
+        idx_suspicious_nodes.append(list(np.where(pd.DataFrame(data=final_G.nodes()) == node)[0])[0])
     
-    return final_G, idx_suspecious_nodes
+    return final_G, idx_suspicious_nodes
 
 
 def plot_adj_matrix(G, markersize=2, compute_associations=True):
@@ -358,22 +367,62 @@ def plot_cross_associations(sparse_matrix, markersize=2):
 
 
 def set_fig_adj_matrix(fig_adj_matrix_):
+    """
+    Set image object for the adjacency matrix plot
+
+    Parameters
+    ----------
+    fig_adj_matrix_: figure
+        figure with the adjacency matrix plot
+    """
+
     global fig_adj_matrix
     fig_adj_matrix = fig_adj_matrix_
 
 def set_fig_cross_associations(fig_cross_associations_):
+    """
+    Set image object for the cross associations plot
+
+    Parameters
+    ----------
+    fig_cross_associations_: figure
+        figure with the cross associations plot
+    """
+    
     global fig_cross_associations
     fig_cross_associations = fig_cross_associations_
 
 def get_fig_adj_matrix():
+    """
+    Get image object with the adjacency matrix plot
+    """
+
     global fig_adj_matrix
     return fig_adj_matrix
 
 def get_fig_cross_associations():
+    """
+    Get image object with the cross associations plot
+    """
     global fig_cross_associations
     return fig_cross_associations
 
 def set_temporal_figures(fig_cum_sum_in_degree_, fig_cum_sum_out_degree_, fig_cum_sum_in_call_count_, fig_cum_sum_out_call_count_):
+    """
+    Set image objects for temporal plots
+
+    Parameters
+    ----------
+    fig_cum_sum_in_degree_: figure
+        figure with cumulative in degree
+    fig_cum_sum_out_degree_: figure
+        figure with cumulative out degree
+    fig_cum_sum_in_call_count_: figure
+        figure with cumulative in call count
+    fig_cum_sum_out_call_count_: figure
+        figure with cumulative out call count
+    """
+
     global fig_cum_sum_in_degree, fig_cum_sum_out_degree, fig_cum_sum_in_call_count, fig_cum_sum_out_call_count
     fig_cum_sum_in_degree = fig_cum_sum_in_degree_
     fig_cum_sum_out_degree = fig_cum_sum_out_degree_
@@ -381,26 +430,55 @@ def set_temporal_figures(fig_cum_sum_in_degree_, fig_cum_sum_out_degree_, fig_cu
     fig_cum_sum_out_call_count = fig_cum_sum_out_call_count_
 
 def get_fig_cum_sum_in_degree():
+    """
+    Get image object with the cumulative in degree
+    """
+
     global fig_cum_sum_in_degree
     return fig_cum_sum_in_degree
 
 def get_fig_cum_sum_out_degree():
+    """
+    Get image object with the cumulative out degree
+    """
+
     global fig_cum_sum_out_degree
     return fig_cum_sum_out_degree
 
 def get_fig_cum_sum_in_call_count():
+    """
+    Get image object figure with cumulative in call count
+    """
+
     global fig_cum_sum_in_call_count
     return fig_cum_sum_in_call_count
 
 def get_fig_cum_sum_out_call_count():
+    """
+    Get image object figure with cumulative out call count
+    """
+
     global fig_cum_sum_out_call_count
     return fig_cum_sum_out_call_count
 
 def set_df_temporal_features(df_temporal_features_):
+    """
+    Set DataFrame with temporal features
+
+    Parameters
+    ----------
+    df_temporal_features_: DataFrame
+        DataFrame with temporal features
+    """
+
     global df_temporal_features
     df_temporal_features=df_temporal_features_
 
 def get_df_temporal_features():
+    """
+    Get DataFrame with temporal features
+    """
+
     global df_temporal_features
     return df_temporal_features
 
@@ -409,12 +487,13 @@ def launch_deep_dive():
     Launch window to visualize features interactively
     and do deep dive on selected nodes
     """
+
     global generate_egonet, ready_for_deep_dive
     global get_cross_associations
 
     st.write(
         """
-        # Deep dive on suspecious nodes
+        # Deep dive on suspicious nodes
         """
     )
 
@@ -453,8 +532,6 @@ def launch_deep_dive():
 
             if st.button('Construct graph'):
                 construct_graph()
-
-                filter_negative_list()
 
                 fig_adj_matrix = None
                 fig_cross_associations = None
@@ -510,8 +587,8 @@ def launch_deep_dive():
                 
                 st.write("### Adjacency matrix of the generated EgoNet")
 
-                final_G, idx_suspecious_nodes = get_egonet(G,
-                                        suspecious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
+                final_G, idx_suspicious_nodes = get_egonet(G,
+                                        suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
                                         radius=ego_radius, #2-step way egonet
                                         column="core")
                 

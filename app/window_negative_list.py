@@ -43,6 +43,16 @@ def add_node_to_negativelist(node_id, file):
 
 
 def remove_node_from_negativelist(node_id, file):
+    """
+    Remove given node id from the negative list
+    
+    Parameters
+    ----------
+    node_id: int
+        id of node to be removed from negative list
+    file: str
+        path of the input file with negative-list
+    """
     global df_negative_list
 
     df_negative_list.drop(df_negative_list[df_negative_list[NODE_ID].astype(str) == str(node_id)].index, inplace=True)

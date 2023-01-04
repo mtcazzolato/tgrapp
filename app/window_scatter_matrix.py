@@ -74,6 +74,8 @@ def read_files(file_features, file_graph):
     # File with raw data (source, destination, measure, timestamp) to generate the graph
     df_graph = pd.read_csv(file_graph)
 
+    filter_negative_list()
+
     df.fillna(0, inplace=True)
     flag_graph_constructed=False
 
@@ -147,6 +149,9 @@ def construct_graph():
 
 
 def filter_negative_list():
+    """
+    Remove nodes included in the negative list
+    """
     global df, df_graph
 
     if os.path.isfile(file_negative_list):
@@ -157,8 +162,6 @@ def filter_negative_list():
 
         df_graph = df_graph[~df_graph[SOURCE].isin(list(df_negative_list[NODE_ID].values))]
         df_graph = df_graph[~df_graph[DESTINATION].isin(df_negative_list[NODE_ID].values)].reset_index(drop=True)
-
-    df.fillna(0, inplace=True)
 
 
 def plot_scatter_matrix(columns):
@@ -218,34 +221,34 @@ def plot_scatter_matrix(columns):
     return fig
 
 
-def get_egonet(G, suspecious_nodes, radius=1, column=''):
+def get_egonet(G, suspicious_nodes, radius=1, column=''):
     """
-    Compose a graph with the egonets of a given set of suspecious nodes.
+    Compose a graph with the egonets of a given set of suspicious nodes.
     Return the subgraph of the composed egonets and the index of
-    suspecious nodes inside the subgraph
+    suspicious nodes inside the subgraph
 
     Parameters
     ----------
     G: nx.Graph
         graph with all nodes to extract the EgoNets from
-    suspecious_nodes: list
-        list of suspecious nodes
+    suspicious_nodes: list
+        list of suspicious nodes
     radius: int
         step of the EgoNet
     """
         
     final_G = nx.empty_graph(create_using=nx.DiGraph())
 
-    for ego_node in suspecious_nodes:
+    for ego_node in suspicious_nodes:
         # create ego network
         hub_ego = nx.ego_graph(G, ego_node, radius=radius, distance='weight', undirected=True)
         final_G = nx.compose(final_G, hub_ego)
 
-    idx_suspecious_nodes = []
-    for node in suspecious_nodes: # TODO: improve this line (not pretty!)
-        idx_suspecious_nodes.append(list(np.where(pd.DataFrame(data=final_G.nodes()) == node)[0])[0])
+    idx_suspicious_nodes = []
+    for node in suspicious_nodes:
+        idx_suspicious_nodes.append(list(np.where(pd.DataFrame(data=final_G.nodes()) == node)[0])[0])
     
-    return final_G, idx_suspecious_nodes
+    return final_G, idx_suspicious_nodes
 
 
 def plot_adj_matrix(G, markersize=2, compute_associations=True):
@@ -342,7 +345,6 @@ def plot_parallel_coordinates(df_features, columns):
     columns: list
         columns to use as coordinates
     """
-    # TODO: adjust size and details of the plot
     
     fig = px.parallel_coordinates(df_features,
                                   dimensions=columns,
@@ -359,7 +361,14 @@ def plot_parallel_coordinates(df_features, columns):
 
 def plot_interactive_egonet(G, suspicious_nodes=[]):
     """
-    # TODO
+    Plot given graph using the spring layout
+
+    Parameters
+    ----------
+    G: Graph
+        Graph object from networkx
+    suspicous_nodes: list
+        List of node ids to be painted in red
     """
     
     edge_x = []
@@ -475,8 +484,6 @@ def launch_w_scatter_matrix():
             if st.button('Construct graph'):
                 construct_graph()
 
-                filter_negative_list()
-    
     
     with st.expander(label="Visualize features", expanded=True):
         if flag_graph_constructed:
@@ -521,8 +528,8 @@ def launch_w_scatter_matrix():
 
             st.write("### Adjacency matrix of the generated EgoNet")
 
-            final_G, idx_suspecious_nodes = get_egonet(G,
-                                    suspecious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
+            final_G, idx_suspicious_nodes = get_egonet(G,
+                                    suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
                                     radius=ego_radius, #2-step way egonet
                                     column="core")
             
@@ -547,7 +554,7 @@ def launch_w_scatter_matrix():
     if len(df_result) > 0:
         with st.expander(label="EgoNet visualization (selected nodes in red)", expanded=True):
             fig_plotly_graph_spring_layout = plot_interactive_egonet(final_G,
-                                                                        suspicious_nodes=idx_suspecious_nodes)
+                                                                        suspicious_nodes=idx_suspicious_nodes)
             st.plotly_chart(fig_plotly_graph_spring_layout,
                             use_container_width=True)
 
