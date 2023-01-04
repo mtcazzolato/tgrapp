@@ -13,10 +13,10 @@ Please cite the paper as (to appear):
 ```
 @inproceedings{cazzolato2023tgrapp,
   title={{TgrApp}: Anomaly Detection and Visualization of Large-Scale Call Graphs},
-  author={Cazzolato, M.T. and Vijayakumar, S. and Zheng, X. and Park, N and Fidalgo, P. and Lee, M-C. and Chau, D.H. and Lages, B. and Traina, A.J.M. and Faloutsos, C..},
+  author={Cazzolato, M.T. and Vijayakumar, S. and Zheng, X. and Park, N. and Lee, M-C. and Chau, D.H. and Fidalgo, P. and Lages, B. and Traina, A.J.M. and Faloutsos, C..},
   booktitle={The 37th AAAI Conference on Artificial Intelligence (AAAI)},
   year={2023},
- note={To appear}
+  note={To appear}
 }
 ```
 
