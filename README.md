@@ -7,7 +7,7 @@
 
 **Affiliations:**  <sup>1</sup> Carnegie Mellon University (CMU), <sup>2</sup> University of São Paulo (USP), <sup>3</sup> Georgia Institute of Technology, <sup>4</sup> Mobileum, <sup>5</sup> ISCTE-IUL  
     
-**Conference:** [The 37th AAAI Conference on Artificial Intelligence (AAAI), 2023 @ Washington DC, USA.](https://aaai.org/Conferences/AAAI-23/demonstration-program/)  
+**Conference:** [The 37th AAAI Conference on Artificial Intelligence (AAAI), 2023 @ Washington DC, USA.](https://aaai.org/Conferences/AAAI-23/)  
 
 Please cite the paper as (to appear):  
 
