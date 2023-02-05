@@ -1,3 +1,4 @@
+
 # TgrApp
 
 *TgrApp*: Anomaly Detection and Visualization of Large-Scale Call Graphs  
@@ -26,9 +27,21 @@ Check file `requirements.txt`
 
 To create and use a virtual environment, type:  
 
-python -m venv tgrapp_venv  
-source tgrapp_venv/bin/activate  
-pip install -r requirements.txt  
+    python -m venv tgrapp_venv  
+    source tgrapp_venv/bin/activate  
+    pip install -r requirements.txt  
+
+## Instructions for M1 / Arm computers
+
+For streamlit app locally on M1:  
+
+    conda create --name tgrapp python=3.8  
+    conda install scikit-learn==0.24.2  
+
+Comment out the scikit learn line in the requirements file (requirements.txt)
+And run:  
+
+    pip install -r requirements.txt  
 
 ## Running the app
 
@@ -67,4 +80,5 @@ The work was proposed in [this]([https://arxiv.org/pdf/2109.02704.pdf](https://a
 ## Short demo video
 
 https://user-images.githubusercontent.com/8514761/192572486-d8449a34-e9ea-4cf0-92e9-1a14dd5a4766.mp4
+
 
