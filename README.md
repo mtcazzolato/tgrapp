@@ -38,7 +38,7 @@ For streamlit app locally on M1:
     conda create --name tgrapp python=3.8  
     conda install scikit-learn==0.24.2  
 
-Comment out the scikit learn line in the requirements file (requirements.txt)
+Comment out the scikit learn line in the requirements file (requirements.txt)  
 And run:  
 
     pip install -r requirements.txt  
