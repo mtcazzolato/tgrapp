@@ -381,8 +381,10 @@ def plot_interactive_egonet(G, suspicious_nodes=[]):
         x1, y1 = pos.get(edge[1])
         edge_x.append(x0)
         edge_x.append(x1)
+        edge_x.append(None)
         edge_y.append(y0)
         edge_y.append(y1)
+        edge_y.append(None)
 
     edge_trace = go.Scatter(x=edge_x, y=edge_y,
         line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
