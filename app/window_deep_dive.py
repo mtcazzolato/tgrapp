@@ -497,23 +497,25 @@ def launch_deep_dive():
         """
     )
 
-    with st.expander("Input parameters", expanded=True):
+    with st.expander("Input parameters (please fill in both)", expanded=True):
 
         selected_points = []
         df_result = pd.DataFrame()
         col1_file_selection, col2_file_selection = st.columns(2)
 
         with col1_file_selection:
-            file_features = st.file_uploader(label="Select a file with features",
-                                    type=['txt', 'csv'])
+            file_features = st.file_uploader(label="Select a file with features*",
+                                             help="File with extracted features (mandatory)",
+                                             type=['txt', 'csv'])
 
             use_example_features = st.checkbox("Use example file with features",
                                     False,
                                     help="Use in-built example file with features to demo the app")
 
         with col2_file_selection:
-            file_graph = st.file_uploader(label="Select a file with raw data",
-                                    type=['txt', 'csv'])
+            file_graph = st.file_uploader(label="Select a file with raw data*",
+                                          help="File with the original rows (source, destination, measure, timestamp)",
+                                          type=['txt', 'csv'])
 
             use_example_graph = st.checkbox("Use example file with raw data",
                                     False,
@@ -531,11 +533,12 @@ def launch_deep_dive():
             populate_selectbox_graph()
 
             if st.button('Construct graph'):
-                construct_graph()
+                with st.spinner('Constructing the graph for a deep dive...'):
+                    construct_graph()
 
                 fig_adj_matrix = None
                 fig_cross_associations = None
-    
+
     if flag_graph_constructed:
         update_sidebar()
         
@@ -567,11 +570,12 @@ def launch_deep_dive():
                     selected_columns = preset_feature_columns[4]
                 
             if (len(selected_columns) > 2):
-                fig = plot_scatter_matrix(selected_columns)
-                selected_points = plotly_events(fig, select_event=True,
-                                                    override_height=plotly_height,
-                                                    override_width=plotly_width,)
-            
+                with st.spinner('Generating scatter plots...'):
+                    fig = plot_scatter_matrix(selected_columns)
+                    selected_points = plotly_events(fig, select_event=True,
+                                                        override_height=plotly_height,
+                                                        override_width=plotly_width,)
+                
                 if len(selected_points) > 0:
                     st.write("Selected nodes:", len(selected_points))
                     df_selected = pd.DataFrame(selected_points)
@@ -587,28 +591,29 @@ def launch_deep_dive():
                 
                 st.write("### Adjacency matrix of the generated EgoNet")
 
-                final_G, idx_suspicious_nodes = get_egonet(G,
-                                        suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
-                                        radius=ego_radius, #2-step way egonet
-                                        column="core")
+                with st.spinner('Generating EgoNet and adjacency matrix...'):
+                    final_G, idx_suspicious_nodes = get_egonet(G,
+                                            suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
+                                            radius=ego_radius, #2-step way egonet
+                                            column="core")
                 
-                st.write("EgoNet size:", len(final_G.nodes))
+                    st.write("EgoNet size:", len(final_G.nodes))
 
-                if get_cross_associations:
-                    if len(final_G.nodes) < max_nodes_association_matrix:
-                        fig_adj_matrix, fig_cross_associations = plot_adj_matrix(G=final_G)
-                        set_fig_adj_matrix(fig_adj_matrix_=fig_adj_matrix)
-                        set_fig_cross_associations(fig_cross_associations_=fig_cross_associations)
-                    else:
-                        fig_adj_matrix = plot_adj_matrix(G=final_G, compute_associations=False)
-                        set_fig_adj_matrix(fig_adj_matrix_=fig_adj_matrix)
+                    if get_cross_associations:
+                        if len(final_G.nodes) < max_nodes_association_matrix:
+                            fig_adj_matrix, fig_cross_associations = plot_adj_matrix(G=final_G)
+                            set_fig_adj_matrix(fig_adj_matrix_=fig_adj_matrix)
+                            set_fig_cross_associations(fig_cross_associations_=fig_cross_associations)
+                        else:
+                            fig_adj_matrix = plot_adj_matrix(G=final_G, compute_associations=False)
+                            set_fig_adj_matrix(fig_adj_matrix_=fig_adj_matrix)
 
-                    #This is to prevent re-generating matrixes all the time                
-                    get_cross_associations = False
-                    set_temporal_figures(fig_cum_sum_in_degree_=None,
-                                         fig_cum_sum_out_degree_=None,
-                                         fig_cum_sum_in_call_count_=None,
-                                         fig_cum_sum_out_call_count_=None)
+                        #This is to prevent re-generating matrixes all the time                
+                        get_cross_associations = False
+                        set_temporal_figures(fig_cum_sum_in_degree_=None,
+                                            fig_cum_sum_out_degree_=None,
+                                            fig_cum_sum_in_call_count_=None,
+                                            fig_cum_sum_out_call_count_=None)
 
                 _, col1, _, col2, _ = st.columns([1, 3, 1, 3, 1])
                 col1.pyplot(get_fig_adj_matrix())
@@ -647,25 +652,26 @@ def launch_deep_dive():
                         )
 
                 if st.button("Visualize calls over time"):
-                    ready_for_deep_dive = True
-                    set_temporal_figures(fig_cum_sum_in_degree_=None,
-                                         fig_cum_sum_out_degree_=None,
-                                         fig_cum_sum_in_call_count_=None,
-                                         fig_cum_sum_out_call_count_=None)
+                    with st.spinner('Generating temporal visualizations...'):
+                        ready_for_deep_dive = True
+                        set_temporal_figures(fig_cum_sum_in_degree_=None,
+                                            fig_cum_sum_out_degree_=None,
+                                            fig_cum_sum_in_call_count_=None,
+                                            fig_cum_sum_out_call_count_=None)
 
-                    if (get_fig_cum_sum_in_degree() is None):
-                        print("Generating temporal features...")
-                        df_temporal_features, fig_cum_sum_in_degree, fig_cum_sum_out_degree, fig_cum_sum_in_call_count, fig_cum_sum_out_call_count = get_curves(df_result,
-                                                        df_raw_data=df_graph,
-                                                        measure=MEASURE,
-                                                        timestamp=TIMESTAMP,
-                                                        source=SOURCE,
-                                                        destination=DESTINATION,
-                                                        selected_date=selected_date,
-                                                        n_days=n_days)
-                        set_df_temporal_features(df_temporal_features)
-                        set_temporal_figures(fig_cum_sum_in_degree, fig_cum_sum_out_degree, fig_cum_sum_in_call_count, fig_cum_sum_out_call_count)
-                        print("Done generating temporal features.")
+                        if (get_fig_cum_sum_in_degree() is None):
+                            print("Generating temporal features...")
+                            df_temporal_features, fig_cum_sum_in_degree, fig_cum_sum_out_degree, fig_cum_sum_in_call_count, fig_cum_sum_out_call_count = get_curves(df_result,
+                                                            df_raw_data=df_graph,
+                                                            measure=MEASURE,
+                                                            timestamp=TIMESTAMP,
+                                                            source=SOURCE,
+                                                            destination=DESTINATION,
+                                                            selected_date=selected_date,
+                                                            n_days=n_days)
+                            set_df_temporal_features(df_temporal_features)
+                            set_temporal_figures(fig_cum_sum_in_degree, fig_cum_sum_out_degree, fig_cum_sum_in_call_count, fig_cum_sum_out_call_count)
+                            print("Done generating temporal features.")
 
                 if (get_fig_cum_sum_in_degree()):
                     col1, _, col2 = st.columns([3, 1, 3])                    
@@ -685,9 +691,10 @@ def launch_deep_dive():
                                                     index=0)
 
                 if st.button("Deep dive on selected node"):
-                    st.write("Deep dive on "+ str(selected_node))
-                    fig_selected_node_incoming, fig_selected_node_outgoing = get_node_curves(get_df_temporal_features(), selected_node)
-                    
+                    with st.spinner('Generating deep dive plots...'):
+                        st.write("Deep dive on "+ str(selected_node))
+                        fig_selected_node_incoming, fig_selected_node_outgoing = get_node_curves(get_df_temporal_features(), selected_node)
+                        
                     col1_node_plot, _, col2_node_plot = st.columns([3, 1, 3])
 
                     col1_node_plot.pyplot(fig_selected_node_incoming)

@@ -466,22 +466,24 @@ def launch_w_lasso():
         """
     )
     
-    with st.expander(label="Input data", expanded=True):
+    with st.expander(label="Input data (please fill in both)", expanded=True):
         selected_points = []
         df_result = pd.DataFrame()
         col1_file_selection, col2_file_selection = st.columns(2)
 
         with col1_file_selection:
-            file_features = st.file_uploader(label="Select a file with features",
-                                    type=['txt', 'csv'])
+            file_features = st.file_uploader(label="Select a file with features*",
+                                             help="File with extracted features (mandatory)",
+                                             type=['txt', 'csv'])
 
             use_example_features = st.checkbox("Use example file with features",
                                     False,
                                     help="Use in-built example file with features to demo the app")
 
         with col2_file_selection:
-            file_graph = st.file_uploader(label="Select a file with raw data",
-                                    type=['txt', 'csv'])
+            file_graph = st.file_uploader(label="Select a file with raw data*",
+                                          help="File with the original rows (source, destination, measure)",
+                                          type=['txt', 'csv'])
                                     
             use_example_graph = st.checkbox("Use example file with raw data",
                                     False,
@@ -500,7 +502,8 @@ def launch_w_lasso():
             populate_selectbox_graph()
 
             if st.button('Construct graph'):
-                construct_graph()
+                with st.spinner('Constructing the graph for a deep dive...'):
+                    construct_graph()
     
     if flag_graph_constructed:
         update_sidebar()
@@ -514,12 +517,12 @@ def launch_w_lasso():
                 st.error("Please select feature 2")
             else:
                 # st.write("### Select nodes of interest")
-
-                fig = plot_scatter()
-                # Add interactive scatter plot
-                selected_points = plotly_events(fig, select_event=True,
-                                                override_height=plotly_height,
-                                                override_width=plotly_width,)
+                with st.spinner('Generating scatter plot...'):
+                    fig = plot_scatter()
+                    # Add interactive scatter plot
+                    selected_points = plotly_events(fig, select_event=True,
+                                                    override_height=plotly_height,
+                                                    override_width=plotly_width,)
             
         with st.expander(label="Deep dive on selected nodes", expanded=True):
             if len(selected_points) > 0:
@@ -531,18 +534,18 @@ def launch_w_lasso():
                 st.dataframe(df.loc[df_selected["pointNumber"].values])
                 
                 st.write("### Adjacency matrix of the generated EgoNet")
-
-                final_G, idx_suspicious_nodes = get_egonet(G,
-                                        suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
-                                        radius=ego_radius, #2-step way egonet
-                                        )
                 
-                st.write("EgoNet size:", len(final_G.nodes))
-                
-                if len(final_G.nodes) < max_nodes_association_matrix:
-                    fig_adj_matrix, fig_cross_associations = plot_adj_matrix(G=final_G, compute_associations=True)
-                else:
-                    fig_adj_matrix = plot_adj_matrix(G=final_G, compute_associations=False)
+                with st.spinner('Generating EgoNet and adjacency matrix...'):
+                    final_G, idx_suspicious_nodes = get_egonet(G,
+                                            suspicious_nodes=df.loc[df_selected["pointNumber"].values][NODE_ID],
+                                            radius=ego_radius, #2-step way egonet
+                                            )
+                    
+                    st.write("EgoNet size:", len(final_G.nodes))
+                    if len(final_G.nodes) < max_nodes_association_matrix:
+                        fig_adj_matrix, fig_cross_associations = plot_adj_matrix(G=final_G, compute_associations=True)
+                    else:
+                        fig_adj_matrix = plot_adj_matrix(G=final_G, compute_associations=False)
 
                 col1, col2 = st.columns([1, 1])
                 col1.pyplot(fig_adj_matrix)
@@ -557,16 +560,18 @@ def launch_w_lasso():
 
         if len(df_result) > 0:
             with st.expander(label="EgoNet visualization (selected nodes in red)", expanded=True):
-                fig_plotly_graph_spring_layout = plot_interactive_egonet(final_G,
-                                                                         suspicious_nodes=idx_suspicious_nodes)
-                st.plotly_chart(fig_plotly_graph_spring_layout,
-                                use_container_width=True)
+                with st.spinner('Generating EgoNet visualization...'):
+                    fig_plotly_graph_spring_layout = plot_interactive_egonet(final_G,
+                                                                            suspicious_nodes=idx_suspicious_nodes)
+                    st.plotly_chart(fig_plotly_graph_spring_layout,
+                                    use_container_width=True)
 
         if len(df_result) > 0:
             with st.expander(label="Parallel coordinates", expanded=True):
-                fig_parallel_coords = plot_parallel_coordinates(df_features=df_result, columns=df.columns[1:8])
-                st.plotly_chart(fig_parallel_coords,
-                                use_container_width=True)
+                with st.spinner('Generating Parallel Coordinates...'):
+                    fig_parallel_coords = plot_parallel_coordinates(df_features=df_result, columns=df.columns[1:8])
+                    st.plotly_chart(fig_parallel_coords,
+                                    use_container_width=True)
 
                 # selected_points_pc = plotly_events(fig_parallel_coords, select_event=True)
                 # st.write(selected_points_pc)

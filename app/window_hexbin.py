@@ -241,7 +241,8 @@ def launch_w_hexbin():
     col1_data_selection, col2_data_selection = st.columns([1, 1])
 
     with col1_data_selection:
-        file = st.file_uploader(label="Select a file with features",
+        file = st.file_uploader(label="Select a file with features*",
+                                help="File with extracted features (mandatory)",
                                 type=['txt', 'csv'])
 
         use_example_file = st.checkbox(
@@ -250,10 +251,12 @@ def launch_w_hexbin():
 
     with col2_data_selection:
         file_labels = st.file_uploader(label="Select a file with labels",
-                                type=['txt', 'csv'])
+                                       help="File with node labels (optional)",
+                                       type=['txt', 'csv'])
 
         use_example_file_labels = st.checkbox(
-            "Use example file", False, help="Use in-built example file with labels to demo the app"
+            "Use example file", False,
+            help="Use in-built example file with labels to demo the app"
         )
 
     if use_example_file and not file:
@@ -276,9 +279,10 @@ def launch_w_hexbin():
             _, col_hexbin, _ = st.columns([1, 5, 1])
 
             with col_hexbin:
-                # Add histogram scatter plot
-                fig_hexbin = plot_hexbin()
-                st.pyplot(fig_hexbin)
+                with st.spinner("Generating HexBin plot..."):
+                    # Add histogram scatter plot
+                    fig_hexbin = plot_hexbin()
+                    st.pyplot(fig_hexbin)
 
 
     # Show options for label if the user selects a file

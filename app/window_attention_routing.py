@@ -369,7 +369,8 @@ def launch_w_attention_routing():
     col1_data_selection, col2_data_selection = st.columns([1, 1])
 
     with col1_data_selection:
-        file = st.file_uploader(label="Select a file with features",
+        file = st.file_uploader(label="Select a file with features*",
+                                help="File with extracted features (mandatory)",
                                 type=['txt', 'csv'])
 
         use_example_file = st.checkbox(
@@ -378,7 +379,8 @@ def launch_w_attention_routing():
 
     with col2_data_selection:
         file_labels = st.file_uploader(label="Select a file with labels",
-                                type=['txt', 'csv'])
+                                       help="File with node labels (optional)",
+                                       type=['txt', 'csv'])
 
         use_example_file_labels = st.checkbox(
             "Use example file", False, help="Use in-built example file with labels to demo the app"
@@ -428,12 +430,13 @@ def launch_w_attention_routing():
                     read_file_label(file_labels)
                 
                 sort_labels(label_column_node_id, label_column_name, label_true_value)
-    
-                # with st.expander(label="tSNE", expanded=True):
-                fig_tsne_interactive = plot_tsne_interactive(columns=df.columns[1:10],
-                                                            n_components=2,
-                                                            perplexity=50)
-                                                            
+
+                with st.spinner("Running tSNE, please wait... (this may take a while)"):
+                    # with st.expander(label="tSNE", expanded=True):
+                    fig_tsne_interactive = plot_tsne_interactive(columns=df.columns[1:10],
+                                                                n_components=2,
+                                                                perplexity=50)
+                                                                
                 # st.plotly_chart(fig_tsne_interactive, use_container_width=True)
                 selected_points_tsne = plotly_events(fig_tsne_interactive, select_event=True,
                                                         override_height=plotly_height,
@@ -454,10 +457,10 @@ def launch_w_attention_routing():
                 st.error("Please select feature 2")
             else:
                 if st.button('Run Gen2Out and iForest'):
-                    st.write("Running Gen2Out, please wait... (this may take a while)")
-                    
-                    fig_step0_heatmap, fig_step1_xray, fig_step2_apex_extraction, fig_step3_outlier_grouping, fig_step4_anomaly_isocurves, fig_step5_scoring = run_gen2out([feature1, feature2])
-                    
+                    with st.spinner("Running Gen2Out, please wait... (this may take a while)"):
+                        
+                        fig_step0_heatmap, fig_step1_xray, fig_step2_apex_extraction, fig_step3_outlier_grouping, fig_step4_anomaly_isocurves, fig_step5_scoring = run_gen2out([feature1, feature2])
+                        
                     st.write("Done.")
 
                     c0_g20, c1_g2o, c2_g2o = st.columns([1, 1, 1])
@@ -475,7 +478,8 @@ def launch_w_attention_routing():
                     with c2_g2o:
                         st.pyplot(fig_step5_scoring)
 
-
-                    iforest_scores = run_iforest([feature1, feature2])
+                    with st.spinner('Running iForest, please wait... (this may take a while)'):
+                        iforest_scores = run_iforest([feature1, feature2])
+    
                     fig_iforest = plot_iforest_scores_interactive(iforest_scores, feature1, feature2)
                     st.plotly_chart(fig_iforest, use_container_width=True)
